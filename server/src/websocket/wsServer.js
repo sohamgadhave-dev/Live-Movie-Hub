@@ -3,6 +3,7 @@ const { v4: uuidv4 } = require('uuid');
 const { validateMessage } = require('../validators/messageValidator');
 const { saveMessage } = require('../services/chatService');
 const rateLimiter = require('../middleware/rateLimiter');
+const { verifyToken, extractTokenFromUrl } = require('../middleware/auth');
 
 // Room management
 const rooms = new Map(); // roomName -> Map(clientId -> { ws, username })
@@ -88,10 +89,25 @@ const setupWebSocket = (server) => {
 
   console.log('🔌 WebSocket server ready on /ws');
 
-  wss.on('connection', (ws) => {
+  wss.on('connection', (ws, req) => {
     const clientId = uuidv4();
     let currentRoom = null;
     let currentUsername = null;
+
+    // JWT Authentication check
+    const token = extractTokenFromUrl(req.url);
+    if (token) {
+      const auth = verifyToken(token);
+      if (!auth.valid) {
+        console.log(`🔒 JWT auth failed for ${clientId}: ${auth.error}`);
+        ws.send(JSON.stringify({ type: 'error', message: 'Authentication failed: ' + auth.error }));
+        ws.close(4001, 'Authentication failed');
+        return;
+      }
+      console.log(`🔒 JWT authenticated: ${auth.decoded.username} (${clientId})`);
+    } else {
+      console.log(`🔓 No JWT token provided for ${clientId} (unauthenticated connection allowed)`);
+    }
 
     console.log(`🔌 WebSocket client connected: ${clientId}`);
 

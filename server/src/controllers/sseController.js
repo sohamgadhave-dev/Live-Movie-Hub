@@ -2,6 +2,7 @@ const sseService = require('../services/sseService');
 
 /**
  * SSE endpoint — streams events to the client
+ * Supports optional ?username= query param for per-user notifications
  */
 const streamEvents = async (req, res) => {
   try {
@@ -11,11 +12,14 @@ const streamEvents = async (req, res) => {
     res.setHeader('Connection', 'keep-alive');
     res.flushHeaders();
 
+    // Extract optional username for per-user SSE
+    const username = req.query.username || null;
+
     // Send initial connection event
     res.write(`data: ${JSON.stringify({ type: 'CONNECTED', message: '🟢 Connected to Live Movie Hub', time: new Date().toISOString() })}\n\n`);
 
-    // Register this client
-    const clientId = sseService.addClient(res);
+    // Register this client (with optional username)
+    const clientId = sseService.addClient(res, username);
 
     // Clean up on disconnect
     req.on('close', () => {
@@ -61,4 +65,36 @@ const announce = async (req, res) => {
   }
 };
 
-module.exports = { streamEvents, announce };
+/**
+ * Per-user announce — send a notification only to a specific user
+ */
+const announceToUser = async (req, res) => {
+  try {
+    const { username } = req.params;
+    const { message } = req.body;
+
+    if (!message || typeof message !== 'string' || message.trim().length === 0) {
+      return res.status(400).json({ error: 'Message is required' });
+    }
+
+    const event = {
+      type: 'PERSONAL_NOTIFICATION',
+      message: `🔔 ${message.trim()}`,
+      targetUser: username,
+      time: new Date().toISOString(),
+    };
+
+    const sentCount = sseService.sendToUser(username, event);
+
+    res.status(200).json({
+      success: true,
+      message: `Notification sent to user "${username}"`,
+      sentToConnections: sentCount,
+    });
+  } catch (error) {
+    console.error('Per-user announce error:', error.message);
+    res.status(500).json({ error: 'Failed to send notification' });
+  }
+};
+
+module.exports = { streamEvents, announce, announceToUser };

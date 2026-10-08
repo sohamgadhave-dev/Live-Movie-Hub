@@ -30,6 +30,7 @@ export const useWebSocket = () => {
   const reconnectTimerRef = useRef(null);
   const currentRoomRef = useRef(null);
   const currentUsernameRef = useRef(null);
+  const tokenRef = useRef(null);
 
   /**
    * Calculate backoff delay: 1s, 2s, 4s, 8s, 16s max
@@ -40,7 +41,7 @@ export const useWebSocket = () => {
   };
 
   /**
-   * Connect to WebSocket server
+   * Connect to WebSocket server (with optional JWT authentication)
    */
   const connect = useCallback(() => {
     if (wsRef.current && wsRef.current.readyState === WebSocket.OPEN) {
@@ -49,7 +50,13 @@ export const useWebSocket = () => {
 
     dispatch(setChatConnectionStatus('connecting'));
 
-    const ws = new WebSocket(WS_URL);
+    // Build WebSocket URL with optional JWT token
+    let wsUrl = WS_URL;
+    if (tokenRef.current) {
+      wsUrl += `?token=${tokenRef.current}`;
+    }
+
+    const ws = new WebSocket(wsUrl);
     wsRef.current = ws;
 
     ws.onopen = () => {
@@ -149,6 +156,22 @@ export const useWebSocket = () => {
     dispatch(setCurrentUsername(username));
     dispatch(clearChat());
     dispatch(setCurrentRoom(room));
+
+    // Fetch JWT token for authentication
+    try {
+      const tokenRes = await fetch(`${API_URL}/api/auth/token`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username }),
+      });
+      const tokenData = await tokenRes.json();
+      if (tokenData.success) {
+        tokenRef.current = tokenData.token;
+      }
+    } catch (error) {
+      console.error('Failed to get auth token:', error);
+      // Continue without auth — server allows unauthenticated connections
+    }
 
     // Load message history from REST API
     try {

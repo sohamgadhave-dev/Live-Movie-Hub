@@ -2,6 +2,7 @@ const express = require('express');
 const cors = require('cors');
 const sseRoutes = require('./routes/sseRoutes');
 const roomRoutes = require('./routes/roomRoutes');
+const authRoutes = require('./routes/authRoutes');
 
 const app = express();
 
@@ -15,6 +16,7 @@ app.use(express.json());
 // Routes
 app.use('/api', sseRoutes);
 app.use('/api', roomRoutes);
+app.use('/api', authRoutes);
 
 // Health check
 app.get('/api/health', (req, res) => {

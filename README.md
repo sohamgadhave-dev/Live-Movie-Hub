@@ -193,7 +193,9 @@ docker run -p 5000:5000 --env-file .env live-movie-hub-server
 
 ### Bonus Features
 - ✅ Ping/pong heartbeat on WebSocket (dead connection detection)
+- ✅ Per-user SSE: send a notification only to a specific user (`/api/announce/:username`)
 - ✅ Rate limiting (5 messages per 10 seconds per user)
+- ✅ Authentication: JWT check when opening the WebSocket connection
 - ✅ Unit tests for message validation (15 test cases)
 - ✅ Dockerfile for backend
 - ✅ XSS sanitization with DOMPurify
@@ -240,11 +242,14 @@ Several things would break with multiple server instances:
 
 ## 📱 Screenshots
 
-> Add screenshots at 360px, 768px, and 1280px wide here.
+### Desktop (1280px)
+![Desktop view at 1280px](screenshots/desktop-1280px.png)
 
-| 360px (Mobile) | 768px (Tablet) | 1280px (Desktop) |
-|---|---|---|
-| _screenshot_ | _screenshot_ | _screenshot_ |
+### Tablet (768px)
+![Tablet view at 768px](screenshots/tablet-768px.png)
+
+### Mobile (360px)
+![Mobile view at 360px](screenshots/mobile-360px.png)
 
 ---
 

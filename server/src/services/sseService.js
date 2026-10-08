@@ -7,10 +7,10 @@ let eventIdCounter = 0;
 /**
  * Add a new SSE client connection
  */
-const addClient = (res) => {
+const addClient = (res, username = null) => {
   const clientId = Date.now();
-  clients.push({ id: clientId, res });
-  console.log(`📡 SSE client connected (ID: ${clientId}). Total clients: ${clients.length}`);
+  clients.push({ id: clientId, res, username });
+  console.log(`📡 SSE client connected (ID: ${clientId}, user: ${username || 'anonymous'}). Total clients: ${clients.length}`);
   return clientId;
 };
 
@@ -80,12 +80,35 @@ const stopEventEmitter = () => {
   if (heartbeatInterval) clearInterval(heartbeatInterval);
 };
 
+/**
+ * Send an event to a specific user by username (per-user SSE)
+ */
+const sendToUser = (username, data) => {
+  eventIdCounter++;
+  const eventString = `id: ${eventIdCounter}\ndata: ${JSON.stringify(data)}\n\n`;
+  let sent = 0;
+
+  clients.forEach((client) => {
+    if (client.username === username) {
+      try {
+        client.res.write(eventString);
+        sent++;
+      } catch (error) {
+        console.error(`Failed to send to user ${username}:`, error.message);
+      }
+    }
+  });
+
+  return sent;
+};
+
 const getClientCount = () => clients.length;
 
 module.exports = {
   addClient,
   removeClient,
   broadcast,
+  sendToUser,
   startEventEmitter,
   stopEventEmitter,
   getClientCount,
