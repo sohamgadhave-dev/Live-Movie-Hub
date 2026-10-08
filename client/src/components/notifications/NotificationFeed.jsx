@@ -52,7 +52,7 @@ const NotificationFeed = () => {
       </div>
 
       {/* Toast Container - fixed position */}
-      <div className="fixed top-4 right-4 z-50 flex flex-col gap-3 max-sm:top-auto max-sm:bottom-20 max-sm:right-3 max-sm:left-3">
+      <div className="fixed top-20 right-4 z-50 flex flex-col gap-3 max-sm:top-auto max-sm:bottom-20 max-sm:right-3 max-sm:left-3">
         {toasts.map((toast) => (
           <NotificationToast key={toast.id} toast={toast} />
         ))}
