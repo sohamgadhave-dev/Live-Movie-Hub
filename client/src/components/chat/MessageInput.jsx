@@ -4,10 +4,22 @@ const MessageInput = ({ onSendMessage, onTyping, disabled }) => {
   const [message, setMessage] = useState('');
   const typingTimeoutRef = useRef(null);
   const isTypingRef = useRef(false);
+  const lastTypingTimeRef = useRef(0);
 
-  const handleTyping = useCallback(() => {
-    if (!isTypingRef.current) {
+  const handleTyping = useCallback((text) => {
+    // If input is cleared, stop typing immediately
+    if (text.length === 0) {
+      isTypingRef.current = false;
+      onTyping(false);
+      if (typingTimeoutRef.current) clearTimeout(typingTimeoutRef.current);
+      return;
+    }
+
+    const now = Date.now();
+    // Resend typing=true if not currently typing, or if it's been > 2 seconds (since receivers auto-clear after 3s)
+    if (!isTypingRef.current || now - lastTypingTimeRef.current > 2000) {
       isTypingRef.current = true;
+      lastTypingTimeRef.current = now;
       onTyping(true);
     }
 
@@ -16,11 +28,11 @@ const MessageInput = ({ onSendMessage, onTyping, disabled }) => {
       clearTimeout(typingTimeoutRef.current);
     }
 
-    // Stop typing after 2 seconds of no input
+    // Stop typing after 2.5 seconds of no input
     typingTimeoutRef.current = setTimeout(() => {
       isTypingRef.current = false;
       onTyping(false);
-    }, 2000);
+    }, 2500);
   }, [onTyping]);
 
   const handleSubmit = (e) => {
@@ -65,7 +77,7 @@ const MessageInput = ({ onSendMessage, onTyping, disabled }) => {
             value={message}
             onChange={(e) => {
               setMessage(e.target.value);
-              handleTyping();
+              handleTyping(e.target.value);
             }}
             onKeyDown={handleKeyDown}
             placeholder="Type a message..."

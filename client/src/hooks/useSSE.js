@@ -12,7 +12,7 @@ const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
  * Custom hook for managing SSE (Server-Sent Events) connection.
  * Handles connection, reconnection status, and dispatching events to Redux.
  */
-export const useSSE = () => {
+export const useSSE = (username = null) => {
   const dispatch = useDispatch();
   const eventSourceRef = useRef(null);
 
@@ -24,7 +24,13 @@ export const useSSE = () => {
 
     dispatch(setConnectionStatus('connecting'));
 
-    const eventSource = new EventSource(`${API_URL}/api/events`);
+    // Build URL with optional username for per-user SSE
+    let url = `${API_URL}/api/events`;
+    if (username) {
+      url += `?username=${encodeURIComponent(username)}`;
+    }
+
+    const eventSource = new EventSource(url);
     eventSourceRef.current = eventSource;
 
     eventSource.onopen = () => {
@@ -62,7 +68,7 @@ export const useSSE = () => {
     };
 
     return eventSource;
-  }, [dispatch]);
+  }, [dispatch, username]);
 
   useEffect(() => {
     const eventSource = connect();

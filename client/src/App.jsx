@@ -10,10 +10,10 @@ import { useSelector } from 'react-redux';
 
 function App() {
   const [activeTab, setActiveTab] = useState('feed');
-  const { currentRoom } = useSelector((state) => state.chat);
+  const { currentRoom, currentUsername } = useSelector((state) => state.chat);
 
-  // Initialize SSE connection
-  useSSE();
+  // Initialize SSE connection (passing username for per-user notifications)
+  useSSE(currentUsername);
 
   // Initialize WebSocket hook
   const { joinRoom, sendMessage, sendTyping, leaveRoom } = useWebSocket();
@@ -25,16 +25,16 @@ function App() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="h-[100dvh] flex flex-col overflow-hidden">
       <Header />
 
       {/* Main Content */}
-      <main className="flex-1 flex flex-col lg:flex-row max-w-7xl mx-auto w-full">
+      <main className="flex-1 flex flex-col lg:flex-row max-w-7xl mx-auto w-full min-h-0 overflow-hidden">
         {/* Notification Feed Panel */}
         <div
           className={`${
             activeTab === 'feed' ? 'flex' : 'hidden'
-          } lg:flex flex-col lg:w-[420px] xl:w-[480px] lg:border-r border-slate-700/30 h-[calc(100vh-57px-56px)] lg:h-[calc(100vh-57px)]`}
+          } lg:flex flex-col lg:w-[420px] xl:w-[480px] lg:border-r border-slate-700/30 flex-1 min-h-0`}
         >
           <NotificationFeed />
         </div>
@@ -43,7 +43,7 @@ function App() {
         <div
           className={`${
             activeTab === 'chat' ? 'flex' : 'hidden'
-          } lg:flex flex-col flex-1 h-[calc(100vh-57px-56px)] lg:h-[calc(100vh-57px)]`}
+          } lg:flex flex-col flex-1 min-h-0`}
         >
           {currentRoom ? (
             <ChatWindow
