@@ -1,6 +1,8 @@
-import { useSelector } from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
+import { resetUnreadCount } from '../../store/notificationSlice';
 
 const Header = () => {
+  const dispatch = useDispatch();
   const unreadCount = useSelector((state) => state.notifications.unreadCount);
 
   return (
@@ -23,9 +25,13 @@ const Header = () => {
         <div className="flex items-center gap-3">
           {/* Notification bell with count */}
           <div className="relative">
-            <div className="w-10 h-10 rounded-xl bg-slate-800/60 border border-slate-700/50 flex items-center justify-center text-lg hover:bg-slate-700/60 transition-colors cursor-default">
+            <button
+              onClick={() => dispatch(resetUnreadCount())}
+              className="w-10 h-10 rounded-xl bg-slate-800/60 border border-slate-700/50 flex items-center justify-center text-lg hover:bg-slate-700/60 transition-colors"
+              aria-label="Clear notifications"
+            >
               🔔
-            </div>
+            </button>
             {unreadCount > 0 && (
               <span className="absolute -top-1 -right-1 flex items-center justify-center min-w-[18px] h-[18px] px-1 text-[10px] font-bold text-white bg-red-500 rounded-full">
                 {unreadCount > 99 ? '99+' : unreadCount}
