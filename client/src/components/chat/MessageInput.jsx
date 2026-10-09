@@ -68,7 +68,7 @@ const MessageInput = ({ onSendMessage, onTyping, disabled }) => {
   return (
     <form
       onSubmit={handleSubmit}
-      className="p-3 sm:p-4 border-t border-slate-700/50 bg-slate-900/60"
+      className="p-3 sm:p-4 border-t border-slate-700/50 bg-slate-900/95 backdrop-blur-md sticky bottom-0 z-20 shrink-0"
     >
       <div className="flex gap-2 items-end">
         <div className="flex-1 relative">

@@ -29,7 +29,7 @@ function App() {
       <Header />
 
       {/* Main Content */}
-      <main className="flex-1 flex flex-col lg:flex-row max-w-7xl mx-auto w-full min-h-0 overflow-hidden">
+      <main className="flex-1 flex flex-col lg:flex-row max-w-7xl mx-auto w-full min-h-0 overflow-hidden pb-[60px] lg:pb-0">
         {/* Notification Feed Panel */}
         <div
           className={`${
