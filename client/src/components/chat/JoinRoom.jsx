@@ -38,8 +38,8 @@ const JoinRoom = ({ onJoin }) => {
   };
 
   return (
-    <div className="flex items-center justify-center h-full p-4">
-      <div className="glass-strong rounded-2xl p-8 max-w-md w-full">
+    <div className="h-full overflow-y-auto p-4 flex pb-24 lg:pb-4">
+      <div className="glass-strong rounded-2xl p-6 sm:p-8 max-w-md w-full m-auto">
         {/* Header */}
         <div className="text-center mb-8">
           <div className="text-5xl mb-3">🍿</div>
